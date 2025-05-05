@@ -1,23 +1,35 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using App.Application.Interfaces;
-using App.Domain.Entities;
-using System.Threading.Tasks;
+using App.Features.Companies.Create;
+using App.Features.Companies.Edit;
+using App.Features.Companies.Delete;
+using App.Features.Companies.GetList;
 
 namespace App.WebUI.Controllers
 {
     public class CompaniesController : Controller
     {
-        private readonly ICompanyService _companyService;
+        private readonly CreateCompanyCommandHandler _createHandler;
+        private readonly EditCompanyCommandHandler _editHandler;
+        private readonly DeleteCompanyCommandHandler _deleteHandler;
+        private readonly GetCompaniesQueryHandler _getListHandler;
 
-        public CompaniesController(ICompanyService companyService)
+        public CompaniesController(
+            CreateCompanyCommandHandler createHandler,
+            EditCompanyCommandHandler editHandler,
+            DeleteCompanyCommandHandler deleteHandler,
+            GetCompaniesQueryHandler getListHandler)
         {
-            _companyService = companyService;
+            _createHandler = createHandler;
+            _editHandler = editHandler;
+            _deleteHandler = deleteHandler;
+            _getListHandler = getListHandler;
         }
 
         // GET: Companies
         public async Task<IActionResult> Index()
         {
-            var companies = await _companyService.GetCompaniesAsync();
+            var query = new GetCompaniesQuery();
+            var companies = await _getListHandler.Handle(query);
             return View(companies);
         }
 
@@ -30,51 +42,66 @@ namespace App.WebUI.Controllers
         // POST: Companies/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Company company)
+        public async Task<IActionResult> Create(Features.Companies.Create.CreateCompanyCommand command)
         {
             if (ModelState.IsValid)
             {
-                await _companyService.CreateCompanyAsync(company);
+                await _createHandler.Handle(command);
                 return RedirectToAction(nameof(Index));
             }
-            return View(company);
+            return View(command);
         }
 
         // GET: Companies/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null) return NotFound();
+            if (id == null)
+                return NotFound();
 
-            var company = await _companyService.GetCompanyByIdAsync(id.Value);
-            if (company == null) return NotFound();
+            var companies = await _getListHandler.Handle(new GetCompaniesQuery());
+            var company = companies.FirstOrDefault(c => c.Id == id);
 
-            return View(company);
+            if (company == null)
+                return NotFound();
+
+            var command = new App.Features.Companies.Edit.EditCompanyCommand
+            {
+                Id = company.Id,
+                Name = company.Name,
+                Address = company.Address,
+                PhoneNumber = company.PhoneNumber,
+                Email = company.Email
+            };
+
+            return View(command);
         }
 
         // POST: Companies/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Company company)
+        public async Task<IActionResult> Edit(int id, Features.Companies.Edit.EditCompanyCommand command)
         {
-            if (id != company.Id)
+            if (id != command.Id)
                 return NotFound();
 
             if (ModelState.IsValid)
             {
-                await _companyService.UpdateCompanyAsync(company);
+                await _editHandler.Handle(command);
                 return RedirectToAction(nameof(Index));
             }
-            return View(company);
+            return View(command);
         }
 
         // GET: Companies/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null) return NotFound();
+            if (id == null)
+                return NotFound();
 
-            var company = await _companyService.GetCompanyByIdAsync(id.Value);
-            if (company == null) return NotFound();
-
+            var companies = await _getListHandler.Handle(new GetCompaniesQuery());
+            var company = companies.FirstOrDefault(c => c.Id == id);
+            if (company == null)
+                return NotFound();
             return View(company);
         }
 
@@ -83,7 +110,7 @@ namespace App.WebUI.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            await _companyService.DeleteCompanyAsync(id);
+            await _deleteHandler.Handle(new Features.Companies.Delete.DeleteCompanyCommand { Id = id });
             return RedirectToAction(nameof(Index));
         }
     }

@@ -1,4 +1,4 @@
-﻿@model App.Domain.Entities.Company
+﻿@model App.Features.Companies.Edit.EditCompanyCommand
 
 @{
     ViewData["Title"] = "Редактирование компании";
@@ -29,6 +29,7 @@
         <span asp-validation-for="Email" class="text-danger"></span>
     </div>
     <button type="submit" class="btn btn-success">Сохранить изменения</button>
+    <a asp-action="Index" class="btn btn-secondary">Отмена</a>
 </form>
 
 @section Scripts {
