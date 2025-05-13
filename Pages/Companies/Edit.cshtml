@@ -1,0 +1,44 @@
+@page "{id:int}"
+@model CompanyManagementApp.Pages.Companies.EditModel
+
+@{
+    ViewData["Title"] = "Редактирование компании";
+}
+
+<h2 class="mb-4">Редактирование компании</h2>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form method="post">
+            <input type="hidden" asp-for="Input.Id" />
+            <div class="mb-3">
+                <label asp-for="Input.Name" class="form-label">Наименование</label>
+                <input asp-for="Input.Name" class="form-control" />
+                <span asp-validation-for="Input.Name" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Input.Address" class="form-label">Адрес</label>
+                <input asp-for="Input.Address" class="form-control" />
+                <span asp-validation-for="Input.Address" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Input.PhoneNumber" class="form-label">Телефон</label>
+                <input asp-for="Input.PhoneNumber" class="form-control" />
+                <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Input.Email" class="form-label">Электронная почта</label>
+                <input asp-for="Input.Email" class="form-control" />
+                <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-outline-success">Сохранить изменения</button>
+                <a asp-page="Index" class="btn btn-outline-secondary">Отмена</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
