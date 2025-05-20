@@ -1,0 +1,13 @@
+@page "{id:int}"
+@model CompanyManagementApp.Pages.Companies.DeleteModel
+@{
+    ViewData["Title"] = "Удаление компании";
+}
+<h2>Удалить компанию</h2>
+
+<form method="post">
+    <input type="hidden" asp-for="Input.CompanyId" />
+    <p>Вы уверены, что хотите удалить компанию с ID @Model.Input.CompanyId?</p>
+    <button type="submit" class="btn btn-outline-danger">Удалить</button>
+    <a asp-page="Index" class="btn btn-outline-secondary">Отмена</a>
+</form>
